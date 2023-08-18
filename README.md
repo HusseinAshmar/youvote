@@ -3,8 +3,8 @@
 Try running some of the following tasks:
 
 ```shell
-mpn i --save-dev
+npm i --save-dev
 npx hardhat node
 npx hardhat run scripts/deploy.js
-mpn run dev
+npm run dev
 ```
