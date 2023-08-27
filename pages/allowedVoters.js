@@ -5,9 +5,10 @@ import { VotingContext } from '../context/Voter';
 import Style from '../styles/allowedVoters.module.css';
 import Button from '../components/Button/Button';
 import Input from '../components/Input/Input';
+import { useDropzone } from 'react-dropzone';
 
-const allowedVoters = () =>{
-  const [fileUrl] = useState(null);
+const allowedVoters = () => { 
+  const [fileUrl, setFileUrl] = useState(null);
   const [formInput, setFormInput] = useState({
     name: "",
     address: "",
@@ -16,6 +17,16 @@ const allowedVoters = () =>{
 
   const router = useRouter();
   const {createVoter} = useContext(VotingContext);
+  const {uploadToIPFS} = useContext(VotingContext);
+
+  const onDrop = useCallback(async (acceptedfile) => {
+    const url = await uploadToIPFS(acceptedfile[0]);
+    setFileUrl(url);
+  });
+
+  const {getRootProps, getInputProps} = useDropzone({
+    onDrop,
+  });
 
   // JSX 
 
@@ -56,6 +67,9 @@ const allowedVoters = () =>{
           <h2>Add voter</h2>
           <div className={Style.voter_container_box}>
             <div className={Style.voter_container_box_div}>
+              <div {...getRootProps()}>
+                <input {...getInputProps()}/>
+              </div>
             </div>
           </div>
         </div>

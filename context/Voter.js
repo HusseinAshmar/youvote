@@ -9,8 +9,18 @@ import  {VotingAddress, VotingAddressABI, JWT, APIKEY, APIPRIVATE} from './const
 
 const fetchContract = (signerOrProvider) => new ethers.Contract(VotingAddress, VotingAddressABI, signerOrProvider);
 
+const projectId = '2UQnrdL5qfnq0O8nIjUGOCp597C';
+const projectSecretKey = '43fedf68db7b50a337d3d7750f1738e7';
+const auth = `Basic ${Buffer.from(`${projectId}:${projectSecretKey}`).toString('base64')}`;
 
-
+const client = ipfsHttpClient({
+    host: 'infura-ipfs.io',
+    port: 5001,
+    protocol: 'https',
+    headers: {
+        authorization: auth
+    }
+});
 
 export const VotingContext = React.createContext();
 export const VotingProvider = ({children}) => {
@@ -60,9 +70,18 @@ export const VotingProvider = ({children}) => {
         setCurrentAccount(account[0]);
     };
 
+    const uploadToIPFS = async () => {
+      try {
+        const url = `https://ipfs.infura.io/ipfs/${added.path}`;
+        return url;
+      } catch (error){
+        setError('error uploading to ipfs')
+      }
+    }
+
 
     //Create voter
-    const createVoter = async(formInput) => {
+    const createVoter = async(formInput, fileUrl, router) => {
         try{
         
             const {name, address, position} = formInput;
@@ -76,10 +95,12 @@ export const VotingProvider = ({children}) => {
             const signer =  provider.getSigner();
             const contract = fetchContract(signer);
             const myData = JSON.stringify({name, address, position});
-            // Upload data to pinata
-            console.log(myData)
-
-
+            const added = await client.add(myData);
+            const url = `https://ipfs.infura.io/ipfs/${added.path}`;
+            console.log(myData);
+            console.log(contract);
+            console.log(url);
+              
         } catch (error) {
             console.log(error);
         }
@@ -92,6 +113,7 @@ export const VotingProvider = ({children}) => {
         votingTitle,
         checkIfWalletIsConnected,
         connectWallet,
+        uploadToIPFS,
         createVoter
         }} 
         >
