@@ -1,0 +1,68 @@
+.card{
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+}
+
+.card_box{
+    background-color: black;
+    box-shadow: 10px 10px 15px rgba(0, 0, 0, 0.35);
+    color:white;
+    text-align: center;
+    overflow: hidden;
+    border-radius: .5rem;
+}
+
+.card_info{
+    line-height: 1;
+    padding: 0 1.5rem;
+}
+
+.card_vote{
+    color: #2b70f2;
+}
+
+.total{
+    background-color: #2b70f2;
+    padding: .5rem;
+    border-radius: .2rem;
+    font-weight: 900;
+    letter-spacing: 1;
+    color: white;
+    text-transform: uppercase;
+}
+
+.card_vote p {
+    font-size: 1.5rem;
+}
+
+.card_button{
+    margin-bottom: 2rem;
+    padding: .5rem;
+}
+
+.card_button button{
+    background-color: #2b70f2;
+    box-shadow: 10px 10px 15px rgba(0, 0, 0, 0.35);
+    border: none;
+    padding: .5rem, 1rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: white;
+    border-radius: .2rem;
+    cursor: pointer;
+}
+
+
+
+
+
+
+/* //media query  */
+@media screen and (max-width: 35em) {
+    .card{
+        grid-template-columns: 1fr;
+    }
+    
+}

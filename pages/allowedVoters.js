@@ -16,9 +16,8 @@ const allowedVoters = () => {
   });
 
   const router = useRouter();
-  const {createVoter} = useContext(VotingContext);
-  const {uploadToIPFS} = useContext(VotingContext);
-
+  const {createVoter, uploadToIPFS, voterArray, getAllVoterData} = useContext(VotingContext);
+  
   const onDrop = useCallback(async (acceptedfile) => {
     const url = await uploadToIPFS(acceptedfile[0]);
     setFileUrl(url);
@@ -27,6 +26,10 @@ const allowedVoters = () => {
   const {getRootProps, getInputProps} = useDropzone({
     onDrop,
   });
+
+  useEffect(()=>{
+    getAllVoterData()
+  }, []);
 
   // JSX 
 
@@ -78,7 +81,7 @@ const allowedVoters = () => {
           <Input inputType='text' title='Address' placeholder='voter address' handleClick={(e) => setFormInput({...formInput, address: e.target.value })} />
           <Input inputType='text' title='Position' placeholder='voter position' handleClick={(e) => setFormInput({...formInput, position: e.target.value })} />
           <div className={Style.Button}>
-            <Button btnName='Add Voter' handleClick={() => createVoter( formInput, router )} />
+            <Button btnName='Add Voter' handleClick={() => createVoter( formInput, fileUrl, router )} />
           </div>
         </div>
       </div>
@@ -87,7 +90,7 @@ const allowedVoters = () => {
         <div className={Style.createdVoter_info}>
           <p>Notice for user</p>
           <p>Organizer <span>0x939939..</span></p>
-          <p>Only Owner can create a voter.</p>
+          <p>Only Organizer can create a voter.</p>
         </div>
       </div>
     </div>

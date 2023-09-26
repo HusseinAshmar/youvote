@@ -150,7 +150,7 @@ contract Voting {
         );
     }
 
-    function vote(address _candidateAddress ) external {
+    function vote(address _candidateAddress, uint256 ) external {
 
         Voter storage voter = voters[msg.sender];
         require(!voter.voter_voted, "You have already voted.");
@@ -163,6 +163,17 @@ contract Voting {
 
     function getVoterLength() public view returns (uint256){
         return votersAddress.length;
+    }
+
+    function getVoterData (address _address) public view returns (uint256, string memory, address, string memory, uint256, bool){
+        return (
+            voters[_address].voter_voterId,
+            voters[_address].voter_name,
+            voters[_address].voter_address,
+            voters[_address].voter_ipfs,
+            voters[_address].voter_allowed,
+            voters[_address].voter_voted
+        );
     }
 
     function getVotedList() public view returns (address[] memory){

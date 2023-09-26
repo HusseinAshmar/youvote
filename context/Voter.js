@@ -42,7 +42,7 @@ export const VotingProvider = ({children}) => {
     //Voter Section
 
     const pushVoter = [];
-    const [ voterArray, setVoterArray] = useState(pushVoter);
+    const [voterArray, setVoterArray] = useState(pushVoter);
     const [voterLength, setVoterLength] = useState('');
     const [voterAddress, setVoterAddress] = useState([]);
 
@@ -70,6 +70,7 @@ export const VotingProvider = ({children}) => {
         setCurrentAccount(account[0]);
     };
 
+    // upload to ipfs
     const uploadToIPFS = async () => {
       try {
         const url = `https://ipfs.infura.io/ipfs/${added.path}`;
@@ -79,6 +80,15 @@ export const VotingProvider = ({children}) => {
       }
     }
 
+    //upload to ipfs candidate
+    const uploadToIPFSCandidate = async () => {
+        try {
+          const url = `https://ipfs.infura.io/ipfs/${added.path}`;
+          return url;
+        } catch (error){
+          setError('error uploading to ipfs')
+        }
+      }
 
     //Create voter
     const createVoter = async(formInput, fileUrl, router) => {
@@ -97,16 +107,121 @@ export const VotingProvider = ({children}) => {
             const myData = JSON.stringify({name, address, position});
             const added = await client.add(myData);
             const url = `https://ipfs.infura.io/ipfs/${added.path}`;
-            console.log(myData);
-            console.log(contract);
-            console.log(url);
-              
+            const voter = await contract.setVoter(address, name, url);
+            voter.wait();
+            
+            router.push('/voterList');
+    
         } catch (error) {
-            console.log(error);
+            console.log('Something went wrong while creating voter');
         }
 
         
-    }
+    };
+
+    // Get voter data
+
+    const getAllVoterData = async()=>{
+        try{
+            const web3Modal = new Web3Modal();
+            const connection =await web3Modal.connect();
+            const provider = new ethers.providers.Web3Provider(connection);
+            const signer =  provider.getSigner();
+            const contract = fetchContract(signer);
+            
+            // voter list
+            const voterListData = await contract.getVoterList();
+            setVoterAddress(voterListData);
+            
+            voterListData.map(async(el)=>{
+                const singleVoterData = await contract.getVoterData(el);
+                pushVoter.push(singleVoterData);
+                console.log(singleVoterData);
+            });
+    
+            //voter length
+            const voterList = await contract.getVoterLength();
+            setVoterLength(voterList.toNumber());
+        }
+        catch(error){
+            console.log('Something went wrong fetching data');
+        }
+
+    };
+   // useEffect(() =>{
+    //   getAllVoterData();
+    //}, []);
+
+    //give vote
+    const giveVote = async(id) => {
+        try {
+            const voterAddress = id.address;
+            const voterId = id.id;
+            const web3Modal = new Web3Modal();
+            const connection =await web3Modal.connect();
+            const provider = new ethers.providers.Web3Provider(connection);
+            const signer =  provider.getSigner();
+            const contract = fetchContract(signer);
+
+            const voteredList = await contract.vote(voterAddress, voterId);
+        }catch (error){
+            console.log(error)
+        }
+    };
+
+
+    //candidate part
+    const setCandidate = async(candidateForm, fileUrl, router) => {
+        try{
+            const {name, address, position} = candidateForm;
+            if(!name || !address || !position) 
+                return console.log('Please enter all the details and try again');
+
+            // connecting smart contract
+            const web3Modal = new Web3Modal();
+            const connection =await web3Modal.connect();
+            const provider = new ethers.providers.Web3Provider(connection);
+            const signer =  provider.getSigner();
+            const contract = fetchContract(signer);
+            const myData = JSON.stringify({name, address, position});
+            const added = await client.add(myData);
+            const ipfs = `https://ipfs.infura.io/ipfs/${added.path}`;
+            const candidate = await contract.setCandidate(address, name, ipfs);
+            candidate.wait();
+            router.push('/');
+
+        } catch (error) {
+            console.log('Something went wrong while creating candidate');
+        }    
+    };
+
+    //get candidate data
+    const getNewCandidate = async()=> {
+        try{
+            // connecting smart contract
+            const web3Modal = new Web3Modal();
+            const connection =await web3Modal.connect();
+            const provider = new ethers.providers.Web3Provider(connection);
+            const signer =  provider.getSigner();
+            const contract = fetchContract(signer);
+
+            // all candidate
+            const allCandidate = await contract.getCandidate();
+            allCandidate.map(async(el)=>{
+                const singleCandidateData = await contract.getCandidateinfo(el);
+                pushCandidate.push(singleCandidateData);
+                candidateIndex.push(singleCandidateData[2].toNumber());
+                
+            });
+
+            // candidate length
+            const allCandidateLength = await contract.getCandidateLength();
+            setCandidateLength(allCandidateLength.toNumber());
+        }catch (error) {
+            console.log(error);
+        }
+    };
+
 
     return (
        <VotingContext.Provider value={{
@@ -114,7 +229,20 @@ export const VotingProvider = ({children}) => {
         checkIfWalletIsConnected,
         connectWallet,
         uploadToIPFS,
-        createVoter
+        uploadToIPFSCandidate,
+        createVoter,
+        getAllVoterData,
+        giveVote,
+        setCandidate,
+        getNewCandidate,
+        error,
+        voterArray,
+        voterLength,
+        voterAddress,
+        currentAccount,
+        candidateLength,
+        candidateArray,
+        
         }} 
         >
             {children} 
