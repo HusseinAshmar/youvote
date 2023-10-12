@@ -18,16 +18,16 @@ contract Voting {
     struct Candidate {
         uint256 candidateId;
         string candidate_name;
-        string candidate_image;
+        //string candidate_image;
         uint256 voteCount;
         address _address;
         string candidate_ipfs;
     }
-
+    //string candidate_image,
     event CandidateCreate (
         uint256 indexed candidateId,
         string candidate_name,
-        string candidate_image,
+        
         uint256 voteCount,
         address _address,
         string candidate_ipfs 
@@ -67,8 +67,8 @@ contract Voting {
         votingOwner = msg.sender;
     }
 
-    function setCandidate(address _address, string memory _name, string memory _image, string memory _ipfs ) public {
-        require(votingOwner == msg.sender, "Only Owner can set candidates.");
+    function setCandidate(address _address, string memory _name, /*string memory _image*/  string memory _ipfs ) public {
+        //require(votingOwner == msg.sender, "Only Owner can set candidates.");
         _candidateId.increment();
 
         uint256 idNum = _candidateId.current();
@@ -76,7 +76,7 @@ contract Voting {
 
         candidate.candidateId = idNum;
         candidate.candidate_name = _name;
-        candidate.candidate_image = _image;
+        //candidate.candidate_image = _image;
         candidate.voteCount = 0;
         candidate._address = _address; 
         candidate.candidate_ipfs = _ipfs;
@@ -87,7 +87,7 @@ contract Voting {
         emit CandidateCreate(
             idNum,
             _name,
-            _image,
+           // _image,
             candidate.voteCount,
             _address,
             _ipfs
@@ -103,13 +103,13 @@ contract Voting {
     function getCandidateLength() public view returns (uint256){
         return candidateAddress.length;
     }
-    function getCandidateinfo(address _address) public view returns(string memory, uint256, string memory, uint256, string memory, address)
+    function getCandidateinfo(address _address) public view returns(string memory, uint256, /*string memory*/ uint256, string memory, address)
     {
 
         return (
             candidates[_address].candidate_name,
             candidates[_address].candidateId,
-            candidates[_address].candidate_image,
+            //candidates[_address].candidate_image,
             candidates[_address].voteCount,
             candidates[_address].candidate_ipfs,
             candidates[_address]._address
@@ -119,7 +119,7 @@ contract Voting {
     //voter
 
     function setVoter( address _address, string memory _name, string memory _ipfs) public {
-        require(votingOwner == msg.sender, "Only owner can add voters.");
+        //require(votingOwner == msg.sender, "Only owner can add voters.");
 
         _voterId.increment();
 
@@ -183,6 +183,6 @@ contract Voting {
         return votersAddress;
     }
 
-
+    receive() external payable {}
 
 }

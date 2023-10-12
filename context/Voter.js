@@ -9,18 +9,19 @@ import  {VotingAddress, VotingAddressABI, JWT, APIKEY, APIPRIVATE} from './const
 
 const fetchContract = (signerOrProvider) => new ethers.Contract(VotingAddress, VotingAddressABI, signerOrProvider);
 
-const projectId = '2UQnrdL5qfnq0O8nIjUGOCp597C';
-const projectSecretKey = '43fedf68db7b50a337d3d7750f1738e7';
+const projectId = '2WFDxA1pOvL4sb6dazE81XiBlqX';
+const projectSecretKey = '646939e99baba75e60d0f4308e595cc1';
 const auth = `Basic ${Buffer.from(`${projectId}:${projectSecretKey}`).toString('base64')}`;
 
 const client = ipfsHttpClient({
-    host: 'infura-ipfs.io',
+    host: 'ipfs.infura.io', 
     port: 5001,
     protocol: 'https',
     headers: {
         authorization: auth
     }
 });
+
 
 export const VotingContext = React.createContext();
 export const VotingProvider = ({children}) => {
@@ -71,9 +72,10 @@ export const VotingProvider = ({children}) => {
     };
 
     // upload to ipfs
-    const uploadToIPFS = async () => {
+    const uploadToIPFS = async (file) => {
       try {
-        const url = `https://ipfs.infura.io/ipfs/${added.path}`;
+        const added = await client.add({content: file})
+        const url = `https://youvote.infura-ipfs.io/ipfs/${added.path}`;
         return url;
       } catch (error){
         setError('error uploading to ipfs')
@@ -81,9 +83,10 @@ export const VotingProvider = ({children}) => {
     }
 
     //upload to ipfs candidate
-    const uploadToIPFSCandidate = async () => {
+    const uploadToIPFSCandidate = async (file) => {
         try {
-          const url = `https://ipfs.infura.io/ipfs/${added.path}`;
+          const added = await client.add({content: file})  
+          const url = `https://youvote.infura-ipfs.io/${added.path}`;
           return url;
         } catch (error){
           setError('error uploading to ipfs')
@@ -92,7 +95,7 @@ export const VotingProvider = ({children}) => {
 
     //Create voter
     const createVoter = async(formInput, fileUrl, router) => {
-        try{
+        
         
             const {name, address, position} = formInput;
             if(!name || !address || !position) 
@@ -106,17 +109,13 @@ export const VotingProvider = ({children}) => {
             const contract = fetchContract(signer);
             const myData = JSON.stringify({name, address, position});
             const added = await client.add(myData);
-            const url = `https://ipfs.infura.io/ipfs/${added.path}`;
+            const url = `https://youvote.infura-ipfs.io/ipfs/${added.path}`;
+            console.log(url)
             const voter = await contract.setVoter(address, name, url);
             voter.wait();
             
             router.push('/voterList');
-    
-        } catch (error) {
-            console.log('Something went wrong while creating voter');
-        }
-
-        
+            
     };
 
     // Get voter data
@@ -142,6 +141,7 @@ export const VotingProvider = ({children}) => {
             //voter length
             const voterList = await contract.getVoterLength();
             setVoterLength(voterList.toNumber());
+            
         }
         catch(error){
             console.log('Something went wrong fetching data');
@@ -162,7 +162,6 @@ export const VotingProvider = ({children}) => {
             const provider = new ethers.providers.Web3Provider(connection);
             const signer =  provider.getSigner();
             const contract = fetchContract(signer);
-
             const voteredList = await contract.vote(voterAddress, voterId);
         }catch (error){
             console.log(error)
@@ -172,7 +171,7 @@ export const VotingProvider = ({children}) => {
 
     //candidate part
     const setCandidate = async(candidateForm, fileUrl, router) => {
-        try{
+        
             const {name, address, position} = candidateForm;
             if(!name || !address || !position) 
                 return console.log('Please enter all the details and try again');
@@ -185,14 +184,13 @@ export const VotingProvider = ({children}) => {
             const contract = fetchContract(signer);
             const myData = JSON.stringify({name, address, position});
             const added = await client.add(myData);
-            const ipfs = `https://ipfs.infura.io/ipfs/${added.path}`;
+            const ipfs = `https://youvote.infura-ipfs.io/${added.path}`;
             const candidate = await contract.setCandidate(address, name, ipfs);
             candidate.wait();
             router.push('/');
 
-        } catch (error) {
-            console.log('Something went wrong while creating candidate');
-        }    
+   
+            
     };
 
     //get candidate data

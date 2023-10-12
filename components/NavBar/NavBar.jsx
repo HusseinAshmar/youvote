@@ -59,7 +59,7 @@ const NavBar = () => {
                     <Link href={{pathname: '/'}}>Home</Link>
                   </p>
                   <p>
-                    <Link href={{pathname: 'candidateRegistration'}}>Candidate Registration</Link>
+                    <Link href={{pathname: 'candidateRegistration'}} >Candidate Registration</Link>
                   </p>
                   <p>
                     <Link href={{pathname: 'allowedVoters'}}>Voter Registration</Link>
