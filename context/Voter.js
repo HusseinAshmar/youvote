@@ -86,7 +86,7 @@ export const VotingProvider = ({children}) => {
     const uploadToIPFSCandidate = async (file) => {
         try {
           const added = await client.add({content: file})  
-          const url = `https://youvote.infura-ipfs.io/${added.path}`;
+          const url = `https://youvote.infura-ipfs.io/ipfs/${added.path}`;
           return url;
         } catch (error){
           setError('error uploading to ipfs')
@@ -96,10 +96,10 @@ export const VotingProvider = ({children}) => {
     //Create voter
     const createVoter = async(formInput, fileUrl, router) => {
         
-        
+        try{
             const {name, address, position} = formInput;
             if(!name || !address || !position) 
-                return console.log('Please enter all the details and try again');
+                return alert('Please enter all the details and try again');
 
             // connecting smart contract
             const web3Modal = new Web3Modal();
@@ -113,8 +113,14 @@ export const VotingProvider = ({children}) => {
             console.log(url)
             const voter = await contract.setVoter(address, name, url);
             voter.wait();
-            
             router.push('/voterList');
+        }catch (error){
+            if (error.message.includes('Only Owner can set candidates.')) {
+                alert('Only Owner can set candidates.');
+            } else{
+                alert('something went wrong creating voter.');
+            }
+        }
             
     };
 
@@ -130,14 +136,15 @@ export const VotingProvider = ({children}) => {
             
             // voter list
             const voterListData = await contract.getVoterList();
-            setVoterAddress(voterListData);
             
-            voterListData.map(async(el)=>{
+            setVoterAddress(voterListData.filter((item, 
+                index) => voterListData.indexOf(item) === index));
+            
+            const newVoterArray = await Promise.all(voterListData.map(async(el)=>{
                 const singleVoterData = await contract.getVoterData(el);
-                pushVoter.push(singleVoterData);
-                console.log(singleVoterData);
-            });
-    
+                return singleVoterData;
+            }));
+            setVoterArray(newVoterArray);
             //voter length
             const voterList = await contract.getVoterLength();
             setVoterLength(voterList.toNumber());
@@ -164,6 +171,18 @@ export const VotingProvider = ({children}) => {
             const contract = fetchContract(signer);
             const voteredList = await contract.vote(voterAddress, voterId);
         }catch (error){
+            if (error.code === 'UNPREDICTABLE_GAS_LIMIT') {
+                // This error occurs if the execution would fail on chain.
+                // You might want to translate error messages for business exceptions declared in your contract.
+                if (error.error.message.includes('You have already voted.')) {
+                    alert('You have already voted.');
+                } else if (error.error.message.includes('You dont have the right to vote.')) {
+                    alert('You do not have the right to vote.');
+                } else {
+                    alert('You are not registered to vote.');
+                }
+                
+            }
             console.log(error)
         }
     };
@@ -174,7 +193,7 @@ export const VotingProvider = ({children}) => {
         
             const {name, address, position} = candidateForm;
             if(!name || !address || !position) 
-                return console.log('Please enter all the details and try again');
+                return alert('Please enter all the details and try again');
 
             // connecting smart contract
             const web3Modal = new Web3Modal();
@@ -184,9 +203,10 @@ export const VotingProvider = ({children}) => {
             const contract = fetchContract(signer);
             const myData = JSON.stringify({name, address, position});
             const added = await client.add(myData);
-            const ipfs = `https://youvote.infura-ipfs.io/${added.path}`;
+            const ipfs = `https://youvote.infura-ipfs.io/ipfs/${added.path}`;
             const candidate = await contract.setCandidate(address, name, ipfs);
             candidate.wait();
+            setCandidateArray([...new Set(pushCandidate)]);
             router.push('/');
 
    
@@ -205,12 +225,13 @@ export const VotingProvider = ({children}) => {
 
             // all candidate
             const allCandidate = await contract.getCandidate();
-            allCandidate.map(async(el)=>{
-                const singleCandidateData = await contract.getCandidateinfo(el);
-                pushCandidate.push(singleCandidateData);
-                candidateIndex.push(singleCandidateData[2].toNumber());
-                
-            });
+            const newCandidateArr = await Promise.all(allCandidate.map(async (el)=> {
+                    const singleCandidateData = await contract.getCandidateinfo(el);
+                    candidateIndex.push(singleCandidateData[2].toNumber());
+                    return singleCandidateData;;
+                    
+            }));
+            setCandidateArray(newCandidateArr);
 
             // candidate length
             const allCandidateLength = await contract.getCandidateLength();

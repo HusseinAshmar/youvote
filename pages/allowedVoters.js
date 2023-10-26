@@ -58,7 +58,7 @@ const allowedVoters = () => {
               <div className={Style.sideInfo_box}>
                 <h2>Create a new voter</h2>
                 <p>Vote with Blockchain</p>
-                <p className={Style.sideInfo_para}>Contract Candidate list</p>
+                <p className={Style.sideInfo_para}>Contract voter list</p>
               </div>
 
             </div>

@@ -153,7 +153,7 @@ contract Voting {
     function vote(address _candidateAddress, uint256 ) external {
 
         Voter storage voter = voters[msg.sender];
-        require(!voter.voter_voted, "You have already voted.");
+        require(!voter.voter_voted,  "You have already voted.");
         require(voter.voter_allowed !=0, "You dont have the right to vote.");
 
         voter.voter_voted = true;
@@ -183,6 +183,6 @@ contract Voting {
         return votersAddress;
     }
 
-    receive() external payable {}
+    
 
 }

@@ -13,19 +13,13 @@ const NavBar = () => {
   const {connectWallet, error, currentAccount } = useContext(VotingContext);
   const [openNav, setOpenNav] = useState(false);
   const openNavigation = ()=> {
-    if(openNav){ 
-      setOpenNav(false)
-    }else if(!openNav){
-      setOpenNav(true)
-    }
-  }
+    setOpenNav(!openNav);
+  };
   return (
-    <div className={Style.navbar}>
-      {error === '' ? (
-         '' 
-      ):(
+    <nav className={Style.navbar}>
+      {error && (
         <div className= {Style.message__box}>
-          <div className={Style.message}>
+          <div className={Style.message} role="alert" aria-live="polite">
             <p>{error}</p>
           </div>
         </div>
@@ -34,7 +28,7 @@ const NavBar = () => {
       <div className={Style.navbar_box}>
         <div className={Style.title}>
           <Link href={{ pathname: '/'}}>
-            <Image src={loading} alt='logo' width={60} height={60} />
+            <a><Image src={loading} alt='logo' width={60} height={60} /></a>
           </Link>
         </div>
 
@@ -42,30 +36,26 @@ const NavBar = () => {
           {currentAccount ? (
             <div>
               <div className={Style.connect_flex}>
-                <button onClick={() => openNavigation()}>
-                  {currentAccount.slice(0, 10)}..
+                <button onClick={openNavigation} aria-haspopup="true" aria-expanded={openNav}>
+                  {`${currentAccount.slice(0, 10)}..`}
                 </button>
-                {currentAccount && (
-                  <span>{openNav ? (
-                    <AiFillUnlock onClick={()=> openNavigation()}/>
-                  ) : (
-                    <AiFillLock onClick={() => openNavigation()} />
-                  )}</span>
-                )}
+                <span role='button' tabIndex='0' onClick={openNavigation} onKeyDown={openNavigation} aria-label='Toggle menu'>
+                  {openNav ? <AiFillUnlock /> : <AiFillLock />}
+                </span>
               </div>
               {openNav && (
                 <div className={Style.navigation}>
                   <p>
-                    <Link href={{pathname: '/'}}>Home</Link>
+                    <Link href={{pathname: '/'}}><a onClick={() => {preventDefault(); setOpenNav(false)}}>Home</a></Link>
                   </p>
                   <p>
-                    <Link href={{pathname: 'candidateRegistration'}} >Candidate Registration</Link>
+                    <Link href={{pathname: 'candidateRegistration'}} ><a onClick={() => setOpenNav(false)}>Candidate Registration</a></Link>
                   </p>
                   <p>
-                    <Link href={{pathname: 'allowedVoters'}}>Voter Registration</Link>
+                    <Link href={{pathname: 'allowedVoters'}}><a onClick={() => setOpenNav(false)}>Voter Registration</a></Link>
                   </p>
                   <p>
-                    <Link href={{pathname: 'voterList'}}>Voter List</Link>
+                    <Link href={{pathname: 'voterList'}}><a onClick={() => setOpenNav(false)}>Voter List</a></Link>
                   </p>
                 </div>
               )}
@@ -75,8 +65,8 @@ const NavBar = () => {
           )}
         </div>
       </div>
-    </div>
-  )
-}
+    </nav>
+  );
+};
 
 export default NavBar;

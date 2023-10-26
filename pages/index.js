@@ -8,6 +8,8 @@ import Style from "../styles/index.module.css";
 import Card from "../components/Card/Card";
 import { useRouter } from "next/router";
 
+
+
 const index = () => {
   const { getNewCandidate, candidateArray, giveVote, currentAccount, checkIfWalletIsConnected, candidateLength, voterLength, getAllVoterData} = useContext(VotingContext);
   useEffect(()=>{
@@ -15,6 +17,17 @@ const index = () => {
     getNewCandidate();
     getAllVoterData();
   }, []);
+
+  const [endDate, setEndDate] = useState(null);
+
+  useEffect(() => {
+      const storedEndDate = Number(window?.localStorage.getItem("endDate")) || Date.now() + 86400000;
+      setEndDate(storedEndDate)
+      if (!window?.localStorage.getItem("endDate")) {
+          window?.localStorage.setItem("endDate", storedEndDate);
+      }
+  }, []);
+
   return (
     <div className={Style.home}> {currentAccount && (
         <div className={Style.winner}>
@@ -32,7 +45,7 @@ const index = () => {
           </div>
           <div className={Style.winner_message}>
             <small>
-              <Countdown date={Date.now() + 10000000}/>
+              <Countdown date={endDate}/>
             </small>
           </div>
         </div>
