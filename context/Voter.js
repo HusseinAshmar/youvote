@@ -113,7 +113,7 @@ export const VotingProvider = ({children}) => {
             console.log(url)
             const voter = await contract.setVoter(address, name, url);
             voter.wait();
-            router.push('/voterList');
+            
         }catch (error){
             if (error.message.includes('Only Owner can set candidates.')) {
                 alert('Only Owner can set candidates.');
@@ -174,9 +174,9 @@ export const VotingProvider = ({children}) => {
             if (error.code === 'UNPREDICTABLE_GAS_LIMIT') {
                 // This error occurs if the execution would fail on chain.
                 // You might want to translate error messages for business exceptions declared in your contract.
-                if (error.error.message.includes('You have already voted.')) {
+                if (error.message.includes('You have already voted.')) {
                     alert('You have already voted.');
-                } else if (error.error.message.includes('You dont have the right to vote.')) {
+                } else if (error.message.includes('You dont have the right to vote.')) {
                     alert('You do not have the right to vote.');
                 } else {
                     alert('You are not registered to vote.');
@@ -207,7 +207,7 @@ export const VotingProvider = ({children}) => {
             const candidate = await contract.setCandidate(address, name, ipfs);
             candidate.wait();
             setCandidateArray([...new Set(pushCandidate)]);
-            router.push('/');
+            
 
    
             

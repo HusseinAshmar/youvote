@@ -18,6 +18,8 @@ const index = () => {
     getAllVoterData();
   }, []);
 
+
+
   const [endDate, setEndDate] = useState(null);
 
   useEffect(() => {
@@ -27,6 +29,8 @@ const index = () => {
           window?.localStorage.setItem("endDate", storedEndDate);
       }
   }, []);
+  
+  
 
   return (
     <div className={Style.home}> {currentAccount && (
